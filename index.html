@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>族譜數位化下載</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <script src="config.js"></script>
+  <style>
+    body{font-family:"DFKai-SB","Noto Sans TC",sans-serif;background:#f8f9fa;text-align:center;color:#222;margin:0;padding:0;}
+    header{background:#2c3e50;color:#fff;padding:1.2rem;}
+    h1{margin:.3em 0;}
+    main{max-width:700px;margin:2rem auto;background:#fff;padding:2rem;border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,0.1);}
+    a.download-btn{display:block;margin:1em auto;padding:1em;width:90%;max-width:320px;border-radius:8px;text-decoration:none;font-size:1.05rem;font-weight:bold;color:#fff;background:linear-gradient(90deg,#007bff,#00bfff);box-shadow:0 2px 5px rgba(0,0,0,0.15);transition:.2s;}
+    a.download-btn:hover{transform:scale(1.05);}
+    footer{margin-top:2rem;color:#666;font-size:.9rem;}
+    #donate-btn{position:fixed;left:20px;bottom:20px;background:linear-gradient(90deg,#ff758c,#ff7eb3);color:#fff;border:none;border-radius:50px;padding:.7em 1.3em;font-size:1rem;font-weight:bold;cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,.3);z-index:999;}
+    #donate-btn:hover{transform:scale(1.08);}
+  </style>
+</head>
+<body>
+<header>
+  <h1 id="title"></h1>
+  <p id="subtitle"></p>
+</header>
+
+<main>
+  <h2>📘 族譜電子版下載</h2>
+  <div id="download-list"></div>
+</main>
+
+<footer>
+  <p id="footer"></p>
+</footer>
+
+<button id="donate-btn" onclick="window.location.href='donate.html'">💖 贊助</button>
+
+<script>
+  const cfg = window.GENEALOGY_CONFIG;
+  document.getElementById('title').textContent = `${cfg.title} 數位化檔案`;
+  document.getElementById('subtitle').textContent = `${cfg.year} 整合版`;
+  document.getElementById('footer').textContent = `製作：${cfg.sponsorLabel} ｜ ${cfg.year}`;
+
+  // 動態生成下載按鈕
+  const list = document.getElementById('download-list');
+  (cfg.files || []).forEach(f => {
+    const a = document.createElement('a');
+    a.className = 'download-btn';
+    a.href = f.path;
+    a.textContent = '下載 ' + f.label;
+    list.appendChild(a);
+  });
+</script>
+</body>
+</html>
