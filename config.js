@@ -1,7 +1,7 @@
 // genealogy-1 專案設定檔
 window.GENEALOGY_CONFIG = {
   id: "genealogy-1",
-  title: "泉田喻氏宗譜",
+  title: "g1宗譜",
   year: "2025",
   sponsorLabel: "OS星火",
   files: [
@@ -14,3 +14,4 @@ window.GENEALOGY_CONFIG = {
     dotAddress: "15mJmocR3yikpojcn13chojVfRNtFJJF8z3sia4GEm2jFm9Q"
   }
 };
+
