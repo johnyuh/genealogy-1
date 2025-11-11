@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   // === 🧩 CORS 設定 ===
   const allowedOrigins = [
     "https://johnyuh.github.io",          // 你的 GitHub Pages 網址
-    "https://onespark-app.vercel.app"     // 你的 Vercel 網站
+    "https://genealogy-1.vercel.app"     // 你的 Vercel 網站
   ];
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
@@ -36,11 +36,11 @@ export default async function handler(req, res) {
     const now = new Date();
     const timestamp = now.toISOString().replace(/[-:]/g, "").slice(0, 15);
     const fileName = `emails/inbox_${timestamp}.txt`;
-    const content = `📩 OneSpark 星火留言\n\n時間：${now.toLocaleString()}\n姓名：${name}\nEmail：${email}\n\n內容：\n${message}\n`;
+    const content = `📩 訪客留言\n\n時間：${now.toLocaleString()}\n姓名：${name}\nEmail：${email}\n\n內容：\n${message}\n`;
 
     // === 🔐 GitHub 設定 ===
     const GITHUB_USER = "johnyuh";
-    const GITHUB_REPO = "onespark-app";
+    const GITHUB_REPO = "genealogy-1";
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
     if (!GITHUB_TOKEN) {
@@ -82,8 +82,8 @@ export default async function handler(req, res) {
           },
           body: JSON.stringify({
             personalizations: [{ to: [{ email: "john.ext500@gmail.com" }] }],
-            from: { email: "no-reply@onespark.app", name: "OneSpark 星火" },
-            subject: "OneSpark 星火 - 新留言通知",
+            from: { email: "no-reply@genealogy-1", name: "genealogy-1" },
+            subject: "新留言通知",
             content: [{ type: "text/plain", value: content }]
           })
         });
