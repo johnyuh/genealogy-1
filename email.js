@@ -28,7 +28,7 @@ if (sendButton && !sendButton.dataset.bound) {
 
     try {
       console.log("🚀 傳送中...");
-      const res = await fetch('https://onespark-app.vercel.app/api/github-email-proxy', {
+      const res = await fetch('https://genealogy-1.vercel.app/api/github-email-proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, message })
@@ -56,3 +56,4 @@ if (sendButton && !sendButton.dataset.bound) {
 } else {
   console.warn("⚠️ sendButton 未找到或事件已綁定。");
 }
+
