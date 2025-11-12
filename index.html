@@ -178,53 +178,32 @@
   <div id="toast"></div>
 
   <script>
-  // PWA 可有可無，若你已有 service-worker.js，會自動註冊
+  // PWA：若有 service-worker.js 會自動註冊
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
   }
 
-  // 下載：iOS18 支援 share 儲存到檔案；其他平台直接下載
-  const progress = document.getElementById('progress');
-  const progressBar = document.getElementById('progress-bar');
-  function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2500); }
+  // 提示訊息
+  function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2500);
+  }
+
+  // ✅ 修正：移除原本攔截下載的事件（讓 <a download> 原生下載生效）
   document.querySelectorAll('a.download-btn').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const url = btn.href;
-      const fileName = decodeURIComponent(url.split('/').pop());
-
-      progress.style.display = 'block';
-      progressBar.style.width = '0%';
-      let width = 0;
-      const timer = setInterval(() => { width += 12; progressBar.style.width = width + '%'; if (width >= 100) clearInterval(timer); }, 150);
-
-      try {
-        const res = await fetch(url);
-        const blob = await res.blob();
-        clearInterval(timer);
-        progressBar.style.width = '100%';
-        const file = new File([blob], fileName);
-        const blobUrl = URL.createObjectURL(blob);
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ title: fileName, text: '下載 g1宗譜 檔案', files: [file] });
-        } else {
-          const a = document.createElement('a'); a.href = blobUrl; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-          showToast(`✅ ${fileName} 已下載`);
-        }
-        setTimeout(()=>{ progress.style.display='none'; showToast('✅ 下載完成'); }, 600);
-        setTimeout(()=> URL.revokeObjectURL(blobUrl), 60000);
-      } catch(e) {
-        progress.style.display='none'; alert('下載失敗，請稍後再試');
-      }
-    });
+    const clone = btn.cloneNode(true); // 透過克隆移除所有事件監聽
+    btn.replaceWith(clone);
   });
 
   // 留言窗開關
   const mailBtn = document.getElementById('mail-btn');
   const mailForm = document.getElementById('mail-form');
   const cancelBtn = document.getElementById('mail-cancel');
-  mailBtn.addEventListener('click', () => { mailForm.style.display = (mailForm.style.display === 'flex') ? 'none' : 'flex'; });
+  mailBtn.addEventListener('click', () => {
+    mailForm.style.display = (mailForm.style.display === 'flex') ? 'none' : 'flex';
+  });
   cancelBtn.addEventListener('click', () => { mailForm.style.display = 'none'; });
   </script>
 
