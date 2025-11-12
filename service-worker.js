@@ -1,4 +1,4 @@
-// service-worker.js — OneSpark 星火 安全版快取 (排除擴充資源)
+// service-worker.js — OneSpark 星火 安全版快取 v2（排除擴充與下載請求）
 const CACHE_NAME = "OneSparkCache-v2";
 const FILES_TO_CACHE = [
   "./",
@@ -8,7 +8,7 @@ const FILES_TO_CACHE = [
   "./icons/icon-512.png"
 ];
 
-self.addEventListener("install", event => {
+self.addEventListener("install", (event) => {
   console.log("🪄 [ServiceWorker] Installing...");
   event.waitUntil(
     (async () => {
@@ -26,13 +26,13 @@ self.addEventListener("install", event => {
   );
 });
 
-self.addEventListener("activate", event => {
+self.addEventListener("activate", (event) => {
   console.log("⚙️ [ServiceWorker] Activating...");
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
       await Promise.all(
-        keys.map(key => {
+        keys.map((key) => {
           if (key !== CACHE_NAME) {
             console.log("🧹 移除舊快取:", key);
             return caches.delete(key);
@@ -44,15 +44,21 @@ self.addEventListener("activate", event => {
   );
 });
 
-self.addEventListener("fetch", event => {
-  // 🧠 排除 chrome-extension 請求
-  const url = event.request.url;
-  if (url.startsWith("chrome-extension://")) {
-    // 完全略過這類請求，不干擾外掛
+self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+
+  // 🚫 排除 chrome-extension 或跨域請求
+  if (url.protocol === "chrome-extension:" || url.origin !== self.location.origin) {
     return;
   }
 
-  // 只處理 GET 請求
+  // 🚫 排除下載檔案 (zip, docx, pdf, etc.)
+  if (url.pathname.match(/\.(zip|docx|pdf|xlsx|pptx|txt|rar|7z)$/i) || url.pathname.includes("/download")) {
+    console.log("⬇️ 跳過下載請求:", url.pathname);
+    return;
+  }
+
+  // 只處理 GET
   if (event.request.method !== "GET") return;
 
   event.respondWith(
@@ -60,14 +66,12 @@ self.addEventListener("fetch", event => {
       const cache = await caches.open(CACHE_NAME);
       const cached = await cache.match(event.request);
       if (cached) {
-        // 嘗試背景更新
+        // 背景更新
         event.waitUntil(
           fetch(event.request)
-            .then(response => {
+            .then((response) => {
               if (response && response.status === 200) {
-                cache.put(event.request, response.clone()).catch(() => {
-                  // 忽略擴充資源錯誤
-                });
+                cache.put(event.request, response.clone()).catch(() => {});
               }
             })
             .catch(() => {})
@@ -89,4 +93,5 @@ self.addEventListener("fetch", event => {
   );
 });
 
-console.log("✨ OneSpark 安全版 Service Worker v2 已啟動（忽略擴充功能請求）。");
+console.log("✨ OneSpark 安全版 Service Worker v2 已啟動（下載請求將不再被攔截）。");
+onsole.log("✨ OneSpark 安全版 Service Worker v2 已啟動（忽略擴充功能請求）。");
