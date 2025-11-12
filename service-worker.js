@@ -47,26 +47,25 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // 🚫 排除 chrome-extension 或跨域請求
-  if (url.protocol === "chrome-extension:" || url.origin !== self.location.origin) {
-    return;
-  }
+  // 🚫 排除 chrome-extension 請求
+  if (url.protocol === "chrome-extension:") return;
 
-  // 🚫 排除下載檔案 (zip, docx, pdf, etc.)
-  if (url.pathname.match(/\.(zip|docx|pdf|xlsx|pptx|txt|rar|7z)$/i) || url.pathname.includes("/download")) {
+  // 只處理 GET，同源請求；跨域完全放行（避免干擾 CDN / 檔案下載）
+  if (event.request.method !== "GET") return;
+  if (url.origin !== self.location.origin) return;
+
+  // 🚫 排除下載檔案 (zip, docx, pdf, xlsx, pptx, txt, rar, 7z) 與 /download 路徑
+  if (/\.(zip|docx|pdf|xlsx|pptx|txt|rar|7z)$/i.test(url.pathname) || url.pathname.includes("/download")) {
     console.log("⬇️ 跳過下載請求:", url.pathname);
     return;
   }
-
-  // 只處理 GET
-  if (event.request.method !== "GET") return;
 
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
       const cached = await cache.match(event.request);
       if (cached) {
-        // 背景更新
+        // 背景更新（不阻塞回應）
         event.waitUntil(
           fetch(event.request)
             .then((response) => {
@@ -93,5 +92,4 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-console.log("✨ OneSpark 安全版 Service Worker v2 已啟動（下載請求將不再被攔截）。");
-onsole.log("✨ OneSpark 安全版 Service Worker v2 已啟動（忽略擴充功能請求）。");
+console.log("✨ OneSpark 安全版 Service Worker v2 已啟動（忽略擴充功能請求）。");
